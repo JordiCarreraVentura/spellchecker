@@ -10,7 +10,7 @@ class TextStreamer:
     
     def __init__(self, source, parser=None):
         self.source = source
-        self.n = 50000
+        self.n = 1000
         self.c = 0
         if parser:
             self.parser = parser(self.source)
