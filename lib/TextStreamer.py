@@ -8,9 +8,9 @@ from Tools import (
 
 class TextStreamer:
     
-    def __init__(self, source, parser=None):
-        self.source = source
-        self.n = 1000
+    def __init__(self, source, parser=None, nb_sent=1000):
+        self.source = source 
+        self.n = nb_sent
         self.c = 0
         if parser:
             self.parser = parser(self.source)
