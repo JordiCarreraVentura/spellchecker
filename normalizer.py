@@ -268,7 +268,7 @@ if __name__ == '__main__':
 
 
 
-#     exit()
+    exit()
 #     for i, (w, similars) in enumerate(index):
 #         if not i % 200:
 #             print i
