@@ -1,23 +1,23 @@
 
 import math
 
-from user import Normalizer
-
+from normalizer import Normalizer
+# 
 from lib.CharacterIndex import CharacterIndex
-
-from lib.SimpleHiddenMarkovModel import SimpleHiddenMarkovModel
-
-from lib.SimpleVectorSpaceModel import SimpleVectorSpaceModel
-
-from lib.parser import CSVSingleColumnParser
-
+# 
+# from lib.SimpleHiddenMarkovModel import SimpleHiddenMarkovModel
+# 
+# from lib.SimpleVectorSpaceModel import SimpleVectorSpaceModel
+# 
+# from lib.parser import CSVSingleColumnParser
+# 
 from lib.NaiveTokenizer import NaiveTokenizer
-
-from lib.TermIndex import TermIndex
-
+# 
+# from lib.TermIndex import TermIndex
+# 
 from lib.TextStreamer import TextStreamer
-
-from lib.WordEmbeddings import WordEmbeddings
+# 
+# from lib.WordEmbeddings import WordEmbeddings
 
 from lib.Tools import (
     FreqDist
@@ -242,36 +242,22 @@ tests2 = {'forbidden': 'forbiden', 'decisions': 'deciscions descisions',
 
 if __name__ == '__main__':
 
-    corpus = '/Users/jordi/Laboratorio/corpora/raw/Kaggle Billion word imputation corpus/test_v2.txt'
+#     corpus = '/Users/jordi/Laboratorio/corpora/raw/Kaggle Billion word imputation corpus/test_v2.txt'
     corpus = '/Users/jordi/Laboratorio/corpora/raw/umbc/webbase_all/delorme.com_shu.pages_89.txt'
-    
-#     parser = CSVSingleColumnParser(1)
-#     streamer = TextStreamer(corpus, parser=parser)
 
     tests = tests1.items() + tests2.items()
-
+    
+    #	Collect input from large text file:
     streamer = TextStreamer(corpus)
+    
+    #	Preprocessing step
     tokenized_stream = NaiveTokenizer(
         streamer,
         to_lower=True
     )
-    
-#     embeddings = WordEmbeddings(
-#         iter=5,
-#         dimensions=200,
-#         window=3
-#     )
-#     embeddings.train(tokenized_stream)
 
-    svsm = SimpleVectorSpaceModel(
-        list(tokenized_stream) + tests,
-        window=20
-    )
-    svsm.train()
-
-    shmm = SimpleHiddenMarkovModel(list(tokenized_stream) + tests)
-    shmm.train()
-
+    #	Map all character n-grams to words, and all words to their
+    #	character n-grams
     index = CharacterIndex(list(tokenized_stream) + tests)
     index.build()
 
@@ -292,21 +278,6 @@ if __name__ == '__main__':
         if similars[0][0] == correct:
             hits += 1
         print error, '>', correct, hits, hits / float(len(tests) - empty)
-#         for sim_w, sim_r in similars:
-#             f_sim_w = freq_dist[sim_w]
-#             if not freq_ratio(f_sim_w, f_w, log_base=2.0):
-#                 continue
-#             sim_e = shmm.similarity(error, correct)
-#             sim_t = svsm.similarity(error, correct)
-            
-#             print
-#             sim_e = embeddings.similarity(w, sim_w)
-#             print w, embeddings.similar(w, n=10)
-#             print sim_w, embeddings.similar(sim_w, n=10)
-#             if (sim_r >= 0.85 and (sim_e >= 0.5)):
-#                 print '+ <target=\"%s\" target_f=%d candidate=\"%s\" candidate_f=%d edit_distance=%.2f embedding_distance=%.6f distributional_distance=%.6f>' % (w, f_w, sim_w, f_sim_w, sim_r, sim_e, sim_t)
-#             else:
-#                 print '<target=\"%s\" target_f=%d candidate=\"%s\" candidate_f=%d edit_distance=%.2f embedding_distance=%.6f distributional_distance=%.6f>' % (w, f_w, sim_w, f_sim_w, sim_r, sim_e, sim_t)
 
 
 
@@ -332,10 +303,3 @@ if __name__ == '__main__':
                 print '<target=\"%s\" target_f=%d candidate=\"%s\" candidate_f=%d edit_distance=%.2f embedding_distance=%.6f distributional_distance=%.6f>' % (w, f_w, sim_w, f_sim_w, sim_r, sim_e, sim_t)
 
 
-
-# >>> model.most_similar(positive=['woman', 'king'], negative=['man'], topn=1)
-# [('queen', 0.50882536)]
-# >>> model.doesnt_match("breakfast cereal dinner lunch".split())
-# 'cereal'
-# >>> model.similarity('woman', 'man')
-# 0.73723527
