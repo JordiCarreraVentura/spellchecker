@@ -20,7 +20,7 @@ class TextStreamer:
     def __iter__(self):
         if not self.parser:
             with open(self.source, 'rb') as rd:
-                for line in rd:
+                for line in tqdm(rd):
                     self.c += 1
                     if not line.strip():
                         continue

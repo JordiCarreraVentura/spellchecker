@@ -23,9 +23,8 @@ class CharacterIndex:
         self.min_r = min_r
 
     def build(self):
-        for tokens in self.streamer:
-            for w in tokens:
-                self.add(w)
+        for w in self.streamer:
+            self.add(w)
         self.__compile()
     
     def __compile(self):
@@ -43,7 +42,6 @@ class CharacterIndex:
         _w = '#%s#' % w
         for g in ngrams(_w, 2):
             yield ''.join(g)
-
 
     def __call__(self, w, n=5):
 

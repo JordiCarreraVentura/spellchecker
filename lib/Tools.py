@@ -60,3 +60,24 @@ def from_csv(path):
         rdr = csv.reader(rd)
         for row in rdr:
             yield row
+
+
+def strip_punct(string):
+    start, end = 0, len(string)
+
+    for i, char in enumerate(string):
+        start = i
+        if not NON_ALPHA.match(char):
+            break
+    if start == end - 1:
+        return ''
+
+    while True:
+        end -= 1
+        if end < 0:
+            return ''
+
+        if not NON_ALPHA.match(string[end]):
+            break
+
+    return string[start:end + 1]
