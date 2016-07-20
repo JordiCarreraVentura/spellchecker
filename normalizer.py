@@ -1,30 +1,14 @@
 
 import math
+import sys
 
 from normalizer import Normalizer
-# 
 from lib.CharacterIndex import CharacterIndex
-# 
-# from lib.SimpleHiddenMarkovModel import SimpleHiddenMarkovModel
-# 
-# from lib.SimpleVectorSpaceModel import SimpleVectorSpaceModel
-# 
-# from lib.parser import CSVSingleColumnParser
-# 
 from lib.NaiveTokenizer import NaiveTokenizer
-# 
-# from lib.TermIndex import TermIndex
-# 
 from lib.TextStreamer import TextStreamer
-# 
-# from lib.WordEmbeddings import WordEmbeddings
 
 from lib.Tools import (
     FreqDist
-#     decode,
-#     encode,
-#     to_csv,
-#     tokenizer
 )
 
 from collections import (
@@ -243,8 +227,9 @@ tests2 = {'forbidden': 'forbiden', 'decisions': 'deciscions descisions',
 if __name__ == '__main__':
 
 #     corpus = '/Users/jordi/Laboratorio/corpora/raw/Kaggle Billion word imputation corpus/test_v2.txt'
-    corpus = '/Users/jordi/Laboratorio/corpora/raw/umbc/webbase_all/delorme.com_shu.pages_89.txt'
+#     corpus = '/Users/jordi/Laboratorio/corpora/raw/umbc/webbase_all/delorme.com_shu.pages_89.txt'
 
+    corpus = sys.argv[1]
     tests = tests1.items() + tests2.items()
     
     #	Collect input from large text file:
@@ -277,29 +262,30 @@ if __name__ == '__main__':
             continue
         if similars[0][0] == correct:
             hits += 1
-        print error, '>', correct, hits, hits / float(len(tests) - empty)
+            print error, '>', correct, hits, hits / float(len(tests) - empty)
+        else:
+            print '\t', similars[0][0], correct
 
 
 
-
-    exit()
-    for i, (w, similars) in enumerate(index):
-        if not i % 200:
-            print i
-        f_w = freq_dist[w]
-        for sim_w, sim_r in similars:
-            f_sim_w = freq_dist[sim_w]
-            if not freq_ratio(f_sim_w, f_w, log_base=2.0):
-                continue
-            sim_e = shmm.similarity(w, sim_w)
-            sim_t = svsm.similarity(w, sim_w)
-#             print
-#             sim_e = embeddings.similarity(w, sim_w)
-#             print w, embeddings.similar(w, n=10)
-#             print sim_w, embeddings.similar(sim_w, n=10)
-            if (sim_r >= 0.85 and (sim_e >= 0.5)):
-                print '+ <target=\"%s\" target_f=%d candidate=\"%s\" candidate_f=%d edit_distance=%.2f embedding_distance=%.6f distributional_distance=%.6f>' % (w, f_w, sim_w, f_sim_w, sim_r, sim_e, sim_t)
-            else:
-                print '<target=\"%s\" target_f=%d candidate=\"%s\" candidate_f=%d edit_distance=%.2f embedding_distance=%.6f distributional_distance=%.6f>' % (w, f_w, sim_w, f_sim_w, sim_r, sim_e, sim_t)
+#     exit()
+#     for i, (w, similars) in enumerate(index):
+#         if not i % 200:
+#             print i
+#         f_w = freq_dist[w]
+#         for sim_w, sim_r in similars:
+#             f_sim_w = freq_dist[sim_w]
+#             if not freq_ratio(f_sim_w, f_w, log_base=2.0):
+#                 continue
+#             sim_e = shmm.similarity(w, sim_w)
+#             sim_t = svsm.similarity(w, sim_w)
+# #             print
+# #             sim_e = embeddings.similarity(w, sim_w)
+# #             print w, embeddings.similar(w, n=10)
+# #             print sim_w, embeddings.similar(sim_w, n=10)
+#             if (sim_r >= 0.85 and (sim_e >= 0.5)):
+#                 print '+ <target=\"%s\" target_f=%d candidate=\"%s\" candidate_f=%d edit_distance=%.2f embedding_distance=%.6f distributional_distance=%.6f>' % (w, f_w, sim_w, f_sim_w, sim_r, sim_e, sim_t)
+#             else:
+#                 print '<target=\"%s\" target_f=%d candidate=\"%s\" candidate_f=%d edit_distance=%.2f embedding_distance=%.6f distributional_distance=%.6f>' % (w, f_w, sim_w, f_sim_w, sim_r, sim_e, sim_t)
 
 
