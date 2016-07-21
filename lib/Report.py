@@ -29,6 +29,8 @@ class Report:
     
     def add(self):
         self.tests += 1
+        if not self.tests % 500:
+            print self.tests, self
 #         print self
     
     def precision(self):

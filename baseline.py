@@ -63,7 +63,7 @@ for C in CONFIG:
         else:
             test = (left, strip_punct(corr), right, err, category, False)
         tests.append(test)
-    tests = tests
+    tests = tests[:10000]
 
     targets = [test[1] for test in tests]
 
