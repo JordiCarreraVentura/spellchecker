@@ -16,6 +16,7 @@ from lib.CharacterIndex import CharacterIndex
 from lib.NaiveTokenizer import NaiveTokenizer
 from lib.TextStreamer import TextStreamer
 from lib.CONLL14ErrorCorrection import CONLL14ErrorCorrection
+from lib.Parser import PatternParser
 from lib.Report import Report
 
 from lib.Tools import (
@@ -58,6 +59,8 @@ corpus = 'data/delorme.com_shu.pages_89.txt'
 
 report = Report()
 
+parser = PatternParser()
+
 for C in CONFIG:
     
 #     tests = tests1.items() + tests2.items()
@@ -80,6 +83,10 @@ for C in CONFIG:
     dump = []
     for doc in TextStreamer(corpus, nb_sent=C['nb_sent']):
         for sent in splitter(doc):
+            parse = parser(sent)
+            for unit in parse.split():
+                print unit
+            raw_input()
             dump += [w.lower() for w in tokenizer(sent)]
     freq_dist = Counter(dump + targets)
 
