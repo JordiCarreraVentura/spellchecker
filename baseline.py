@@ -43,6 +43,15 @@ def get_name(template):
             return name
         i += 1
 
+PoS_l = ['CC', 'CD', 'DT', 'EX', 'FW', 'IN', 'JJ', 'JJR', 'JJS', 'LS', 'MD', 'NN', 'NNS', 'NNP', 'NNPS', 'PDT',
+         'POS', 'PRP', 'PRP$', 'RB', 'RBR', 'RBS', 'RP',
+         'SYM', 'TO', 'UH', 'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ', 'WDT', 'WP', 'WP$', 'WRB']
+PoS = {}
+i = 1
+for k in PoS_l:
+	PoS[k] = i
+	i += 1
+
 
 
 corpus = 'data/delorme.com_shu.pages_89.txt'
