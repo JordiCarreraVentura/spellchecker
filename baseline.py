@@ -111,7 +111,6 @@ targets = [test[1] for test in tests]
 
 #    Collect input from large text file:
 dump = []
-#     for doc in TextStreamer(corpus, nb_sent=C['nb_sent']):
 streamers = [
     TextStreamer(corpus1, nb_sent=200000),
     TextStreamer(corpus2, nb_sent=200000),
@@ -124,11 +123,11 @@ for streamer in streamers:
 
             tokenized = [w.lower() for w in tokenizer(sent)]
             dump += tokenized
-
-#             parse = parser(sent)
-#             tok_pos = [pos[1] for pos in parse.split()[0]]
             model.update(['#'] + tokenized + ['#'])
-#             model_pos.update(['#'] + tok_pos + ['#'])
+
+            parse = parser(sent)
+            tok_pos = [pos[1] for pos in parse.split()[0]]
+            model_pos.update(['#'] + tok_pos + ['#'])
 
 freq_dist = Counter(dump + targets)
 
@@ -147,7 +146,6 @@ for i, (left, candidate, right, correct, category, is_candidate) in enumerate(te
         continue
 #         elif is_candidate and (category != 'Mec'):
 #             continue
-#        if candidate in ['diagonosed','firghtenning','concurently']:
 
     report.add()
 
@@ -188,16 +186,16 @@ for i, (left, candidate, right, correct, category, is_candidate) in enumerate(te
         pos_context_right = ' '.join([sim]
                                + [e for _, e, _, _, _, _ in tests[i + 1:i + 4]])
 
-#         parse_pos_left = parser(pos_context_left)
-#         parse_pos_right = parser(pos_context_right)
+        parse_pos_left = parser(pos_context_left)
+        parse_pos_right = parser(pos_context_right)
 
-#         left_pos = [e_pos[1] for e_pos in parse_pos_left.split()[0]]
-#         right_pos = [e_pos[1] for e_pos in parse_pos_right.split()[0]]
+        left_pos = [e_pos[1] for e_pos in parse_pos_left.split()[0]]
+        right_pos = [e_pos[1] for e_pos in parse_pos_right.split()[0]]
 
-#         pleft_pos = model_pos(left_pos)
-#         pright_pos = model_pos(right_pos)
-        pleft_pos = 0.0
-        pright_pos = 0.0
+        pleft_pos = model_pos(left_pos)
+        pright_pos = model_pos(right_pos)
+#         pleft_pos = 0.0
+#         pright_pos = 0.0
         
         
         pleft = model(left)
