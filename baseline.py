@@ -18,6 +18,7 @@ from lib.TextStreamer import TextStreamer
 from lib.CONLL14ErrorCorrection import CONLL14ErrorCorrection
 from lib.Parser import PatternParser
 from lib.Report import Report
+from lib.DistributionalModel import NgramModel
 
 from lib.Tools import (
     FreqDist,
@@ -54,12 +55,25 @@ for k in PoS_l:
 	i += 1
 
 
+WORD_GRAMS = [
+    (1, False),
+    (2, False),
+    (3, False),
+#     (3, True),
+#     (4, True)
+]
+
+
 
 corpus = 'data/delorme.com_shu.pages_89.txt'
 
 report = Report()
 
 parser = PatternParser()
+
+model = NgramModel(WORD_GRAMS)
+# model_pos = NgramModel(POS_GRAMS)
+
 
 for C in CONFIG:
     
@@ -81,60 +95,102 @@ for C in CONFIG:
 
     #	Collect input from large text file:
     dump = []
-    for doc in TextStreamer(corpus, nb_sent=C['nb_sent']):
+#     for doc in TextStreamer(corpus, nb_sent=C['nb_sent']):
+    for doc in TextStreamer(corpus, nb_sent=40000):
         for sent in splitter(doc):
-            parse = parser(sent)
-            for unit in parse.split():
-                print unit
-            raw_input()
-            dump += [w.lower() for w in tokenizer(sent)]
+#             parse = parser(sent)
+#             for unit in parse.split():
+#                 print unit
+#             raw_input()
+            tokenized = [w.lower() for w in tokenizer(sent)]
+            dump += tokenized
+            model.update(['#'] + tokenized + ['#'])
     freq_dist = Counter(dump + targets)
+
 
     #	Map all character n-grams to words, and all words to their
     #	character n-grams
-    index = CharacterIndex(dump + targets, top_n=C['top_n'], min_r=C['sim_thres'])
+#     index = CharacterIndex(dump + targets, top_n=C['top_n'], min_r=C['sim_thres'])
+    index = CharacterIndex(dump + targets, top_n=C['top_n'], min_r=0.9)
     index.build()
 
-    for left, error, right, correct, category, human in tests:
+    tests = [t for t in tests]
+    for i, (left, candidate, right, correct, category, is_candidate) in enumerate(tests):
         
-        if error == correct:
+        if candidate == correct:
             continue
 
         report.add()
 
-        if human:
-            left = ' '.join(left.split()[-10:])
-            right = ' '.join(right.split()[:10])
-        else:
-            left = ''
-            right = ''
+        if is_candidate and ((not correct or len(correct.split()) > 1) or 
+        category != 'Mec'):
+            report.fn(left, candidate, right, correct, category)
+            continue
 
-        similars = [(w, sim) for w, sim in index[error]
+#         similars = index(candidate, n=5)
+        similars = [(w, sim) for w, sim in index(candidate)
                     if freq_dist[w] >= 10 and
-                    freq_dist[w] / freq_dist[error] >= 30]
+                    freq_dist[w] / freq_dist[candidate] >= 100]
 
-        if not similars and not human:
-            report.tn(left, error, right, correct, category)
+        if not similars and not is_candidate:
+            report.tn(left, candidate, right, correct, category)
             continue
         elif not similars:
-            report.fn(left, error, right, correct, category)
+            report.fn(left, candidate, right, correct, category)
             continue
-        elif similars and not human:
-            report.fp(left, error, right, correct, category)
+        elif similars and not is_candidate:
+            report.fp(left, candidate, right, correct, category)
             continue
 
-        similars.sort(
-            key=lambda x: freq_dist[x[0]],
-            reverse=True
-        )
+#         similars.sort(
+#             key=lambda x: freq_dist[x[0]],
+#             reverse=True
+#         )
+#         top = [w for w, sim in similars[:1]]
 
-        top = [w for w, _ in similars[:1]]
-        if correct in top:
-            report.tp(left, error, right, correct, category)
+        corrections = []
+        for sim, _ in similars + [(candidate, None)]:
+            left = [e for _, e, _, _, _, _ in tests[i - 3:i]] + [sim]
+            right = [sim] + [e for _, e, _, _, _, _ in tests[i + 1:i + 4]]
+            pleft = model(left)
+            pright = model(right)
+            score = abs(pleft - pright)
+#             corrections.append((score, sim))
+            corrections.append((score * max([pleft, pright]), sim))
+#         print left
+#         print '... %s' % right
+#         print candidate, '/%s' % correct
+#         print sorted(corrections, reverse=True)
+        baseline = [sim for sim, w in corrections if w == candidate][0]
+
+        print [(freq_dist[w] / freq_dist[candidate], w) for sim, w in corrections[:1]
+                   if freq_dist[w] / freq_dist[candidate] >= 2]
+        print [w for sim, w in corrections[:1]
+                   if (baseline and sim / baseline >= 2)
+                   or not baseline]
+        print
+        if baseline:
+            top = [w for sim, w in corrections[:1]
+                   if w != candidate and
+                   freq_dist[w] / freq_dist[candidate] >= 100]
+#             print [(w, sim / baseline) for sim, w in corrections[:1]
+#                    if w != candidate and
+#                    freq_dist[w] / freq_dist[candidate] >= 10 and
+#                    sim / baseline >= 1000]
         else:
-            report.fp(left, error, right, correct, category)
+            top = [w for sim, w in corrections[:1]]
+
+        if not top and is_candidate:
+            report.fn(left, candidate, right, correct, category)
+        elif not top and not is_candidate:
+            report.tn(left, candidate, right, correct, category)
+        elif is_candidate and correct in top:
+            report.tp(left, candidate, right, correct, category)
+        elif top and not is_candidate:
+            report.fp(left, candidate, right, correct, category)
     
     report.lap(C)
+    break
 
 
 template = 'logs/test-%s-%d'
