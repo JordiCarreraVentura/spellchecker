@@ -63,6 +63,14 @@ WORD_GRAMS = [
 #     (4, True)
 ]
 
+POS_GRAMS = [
+    (1, False),
+    (2, False),
+    (3, False),
+#     (3, True),
+#     (4, True)
+]
+
 
 
 corpus1 = 'data/delorme.com_shu.pages_89.txt'
@@ -75,7 +83,7 @@ report = Report()
 parser = PatternParser()
 
 model = NgramModel(WORD_GRAMS)
-# model_pos = NgramModel(POS_GRAMS)
+model_pos = NgramModel(POS_GRAMS)
 
 
 for C in CONFIG:
@@ -109,13 +117,17 @@ for C in CONFIG:
     for streamer in streamers:
         for doc in streamer:
             for sent in splitter(doc):
-#             parse = parser(sent)
-#             for unit in parse.split():
-#                 print unit
-#             raw_input()
+                parse = parser(sent)
+                # for unit in parse.split():
+                #    print unit[0]
+                # raw_input()
                 tokenized = [w.lower() for w in tokenizer(sent)]
+                tok_pos = [pos[1] for pos in parse.split()]
                 dump += tokenized
+                
                 model.update(['#'] + tokenized + ['#'])
+                model_pos.update(['#'] + tok_pos + ['#'])
+                
     freq_dist = Counter(dump + targets)
 
 
@@ -166,9 +178,29 @@ for C in CONFIG:
         for sim, _ in similars + [(candidate, None)]:
             left = [e for _, e, _, _, _, _ in tests[i - 3:i]] + [sim]
             right = [sim] + [e for _, e, _, _, _, _ in tests[i + 1:i + 4]]
+            
+            pos_context_left = ' '.join([e for _, e, _, _, _, _ in tests[i - 3:i]] 
+                                   + [sim])
+            pos_context_right = ' '.join([sim]
+                                   + [e for _, e, _, _, _, _ in tests[i + 1:i + 4]])
+            
+            parse_pos_left = parser(pos_context_left)
+            parse_pos_right = parser(pos_context_right)
+            
+            left_pos = [e_pos[1] for e_pos in parse_pos_left]
+            right_pos = [e_pos[1] for e_pos in parse_pos_right]
+            
             pleft = model(left)
             pright = model(right)
+            
+            pleft_pos = model_pos(left_pos)
+            pright_pos = model_pos(right_pos)
+            
             score = abs(pleft - pright)
+            
+            print left, pleft
+            print right, pright
+			
 #             corrections.append((score, sim))
             corrections.append((score * max([pleft, pright]), sim))
         baseline = [sim for sim, w in corrections if w == candidate][0]
@@ -206,3 +238,4 @@ for C in CONFIG:
 
 template = 'logs/test-%s-%d'
 report(get_name(template))
+
