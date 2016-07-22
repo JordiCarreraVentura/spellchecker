@@ -76,44 +76,46 @@ class NgramModel:
 #         print probs
         
         scores = dict([])
-        for (n, skip) in [(1, False), (2, False), (3, False), (3, True), (4, True)]:
-            scores[(n, skip)] = prod(probs[(n, skip)])
-        
-        for x in [(3, False), (2, False), (3, True), (4, True), (1, False)]:
-            if scores[x]:
-                return scores[x]
+        for (n, skip) in [(3, False), (2, False), (3, True), (4, True), (1, False)]:
+            prob = prod(probs[(n, skip)])
+            if prob:
+                return prob
         return 0.0
 
-# 
-# data = [
-#     (1, 1, 1, 2),
-#     (1, 1, 1, 3),
-#     (1, 1, 1, 4),
-#     (1, 2),
-#     (1, 2, 1, 2)
-# ]
-# 
-# tests = [
-#     (1, 1, 1),
-#     (1, 2),
-#     (4, 1)
-# ]
-# 
-# model = NgramModel(WORD_GRAMS)
-# for record in data:
-#     model.update(['#'] + list(record) + ['#'])
-#     #model.update(list(record))
-# 
-# for test in tests:
-#     print test
-#     
-#     scores = []
-#     for (n, skip), probs in model(['#'] + list(test) + ['#']).items():
-#         score = prod(probs)
-#         scores.append(score)
-#         print n, skip, score
-#     print sum(scores)
-#     print
+
+
+if __name__ == '__main__':
+
+    data = [
+        (1, 1, 1, 2),
+        (1, 1, 1, 3),
+        (1, 1, 1, 4),
+        (1, 2),
+        (1, 2, 1, 2)
+    ]
+
+    tests = [
+        (1, 1, 1),
+        (1, 2),
+        (4, 1)
+    ]
+
+    model = NgramModel(WORD_GRAMS)
+    for record in data:
+        model.update(['#'] + list(record) + ['#'])
+        #model.update(list(record))
+
+    for test in tests:
+        print test
+        print model(test)
+    
+#         scores = []
+#         for (n, skip), probs in model(['#'] + list(test) + ['#']).items():
+#             score = prod(probs)
+#             scores.append(score)
+#             print n, skip, score
+#         print sum(scores)
+#         print
 
 
 # 

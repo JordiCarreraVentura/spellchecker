@@ -1,22 +1,45 @@
 CONFIG = [
 
     {
-    	'nb_sent': 200000,
+    	'nb_sent': 20000,
 #     	'chgram': 3,
     	'sim_thres': 0.9,
-   		'freq_ratio': 100,
+   		'freq_ratio': 50,
     	'min_Count': 10,
     	'top_n': 100,
 	},
 
     {
-    	'nb_sent': 200000,
+    	'nb_sent': 20000,
 #     	'chgram': 2,
     	'sim_thres': 0.9,
-   		'freq_ratio': 200,
+   		'freq_ratio': 50,
     	'min_Count': 50,
-    	'top_n': 100
-	},
+    	'top_n': 100,
+    }
+
+]
+
+
+# CONFIG = [
+# 
+#     {
+#     	'nb_sent': 200000,
+# #     	'chgram': 3,
+#     	'sim_thres': 0.9,
+#    		'freq_ratio': 100,
+#     	'min_Count': 10,
+#     	'top_n': 100,
+# 	},
+# 
+#     {
+#     	'nb_sent': 200000,
+# #     	'chgram': 2,
+#     	'sim_thres': 0.9,
+#    		'freq_ratio': 200,
+#     	'min_Count': 50,
+#     	'top_n': 100
+# 	},
 
 #     {
 #     	'nb_sent': 200000,
@@ -58,24 +81,25 @@ CONFIG = [
 
 ########
 
-	{
-    	'nb_sent': 10000,
-#     	'chgram': 2,
-    	'sim_thres': 0.9,
-   		'freq_ratio': 10,
-    	'min_Count': 10,
-    	'top_n': 50
-	},
+# 	{
+#     	'nb_sent': 10000,
+# #     	'chgram': 2,
+#     	'sim_thres': 0.9,
+#    		'freq_ratio': 10,
+#     	'min_Count': 10,
+#     	'top_n': 50
+# 	},
+# 
+# 	{
+#     	'nb_sent': 10000,
+# #     	'chgram': 2,
+#     	'sim_thres': 0.85,
+#    		'freq_ratio': 10,
+#     	'min_Count': 10,
+#     	'top_n': 50
+# 	},
 
-	{
-    	'nb_sent': 10000,
-#     	'chgram': 2,
-    	'sim_thres': 0.85,
-   		'freq_ratio': 10,
-    	'min_Count': 10,
-    	'top_n': 50
-	},
-	
+########################
 ####
 # 
 #     {
@@ -131,5 +155,5 @@ CONFIG = [
 #     	'min_Count': 10,
 #     	'top_n': 200
 # 	}	
-
-]
+# 
+# ]

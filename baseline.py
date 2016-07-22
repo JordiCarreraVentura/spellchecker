@@ -105,7 +105,7 @@ for C in CONFIG:
         TextStreamer(corpus1, nb_sent=C['nb_sent']),
         TextStreamer(corpus2, nb_sent=C['nb_sent']),
         TextStreamer(corpus3, nb_sent=C['nb_sent']),
-        TextStreamer(corpus4, nb_sent=C['nb_sent']),
+#         TextStreamer(corpus4, nb_sent=C['nb_sent']),
     ]
     for streamer in streamers:
         for doc in streamer:
@@ -165,21 +165,29 @@ for C in CONFIG:
 
         corrections = []
         for sim, _ in similars + [(candidate, None)]:
-            left = [e for _, e, _, _, _, _ in tests[i - 3:i]] + [sim]
-            right = [sim] + [e for _, e, _, _, _, _ in tests[i + 1:i + 4]]
+            print tests[i - 10:i + 10]
+            left = [e.strip() for _, e, _, _, _, _ in tests[i - 3:i]] + [sim]
+            right = [sim] + [e.strip() for _, e, _, _, _, _ in tests[i + 1:i + 4]]
             pleft = model(left)
             pright = model(right)
+            print '\t', ' '.join(left), model(left)
+            print '\t\t', ' '.join(right), model(right)
             score = abs(pleft - pright)
-            corrections.append((score * max([pleft, pright]), sim))
-        baseline = [sim for sim, w in corrections if w == candidate][0]
+            corrections.append((max([pleft, pright]), sim))
 
+        baseline = [sim for sim, w in corrections if w == candidate][0]
         if baseline:
             top = [w for sim, w in sorted(corrections, reverse=True)[:1]
-                   if w != candidate and
-                   freq_dist[w] / freq_dist[candidate] >= 100]
+                   if w != candidate]
+#             top = [w for sim, w in sorted(corrections, reverse=True)[:1]
+#                    if w != candidate]
         else:
             top = [w for sim, w in corrections[:1]]
 
+        print candidate, '/%s' % correct
+        print corrections
+        print sorted(corrections, reverse=True)
+        print
         if not top and is_candidate:
             report.fn(left, candidate, right, correct, category)
         elif not top and not is_candidate:
