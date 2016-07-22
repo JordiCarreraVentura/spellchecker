@@ -36,15 +36,15 @@ class Report:
     def precision(self):
         if not self._fp:
             return 1.0
-        return round(self._tp / (self._tp + self._fp), 2)
+        return round(self._tp / (self._tp + self._fp), 2) * 100
     
     def recall(self):
         if not self._fn:
             return 1.0
-        return round(self._tp / (self._tp + self._fn), 2)
+        return round(self._tp / (self._tp + self._fn), 2) * 100
     
     def __str__(self):
-        return '<tp=%d  tn=%d  fp=%d  fn=%d  total=%d  prec=%.2f  rec=%.2f>' % (self._tp, self._tn, self._fp, self._fn, self.tests, self.precision(), self.recall())
+        return '<tp=%d  tn=%d  fp=%d  fn=%d  total=%d  prec=%.f  rec=%.f>' % (self._tp, self._tn, self._fp, self._fn, self.tests, self.precision(), self.recall())
     
     def fn(self, left, error, right, correct, category):
         self._rows.append(('fn', category, left, error, right, correct))

@@ -65,7 +65,10 @@ WORD_GRAMS = [
 
 
 
-corpus = 'data/delorme.com_shu.pages_89.txt'
+corpus1 = 'data/delorme.com_shu.pages_89.txt'
+corpus2 = 'data/delorme.com_shu.pages_102.txt'
+corpus3 = 'data/delorme.com_shu.pages_120.txt'
+corpus4 = 'data/utexas_iit.pages_12.txt'
 
 report = Report()
 
@@ -89,22 +92,30 @@ for C in CONFIG:
         else:
             test = (left, strip_punct(corr), right, err, category, False)
         tests.append(test)
-    tests = tests[:10000]
+    tests = tests[:30000]
 
     targets = [test[1] for test in tests]
+
 
     #	Collect input from large text file:
     dump = []
 #     for doc in TextStreamer(corpus, nb_sent=C['nb_sent']):
-    for doc in TextStreamer(corpus, nb_sent=40000):
-        for sent in splitter(doc):
+    streamers = [
+        TextStreamer(corpus1, nb_sent=200000),
+#         TextStreamer(corpus2, nb_sent=200000),
+#         TextStreamer(corpus3, nb_sent=200000),
+#         TextStreamer(corpus4, nb_sent=200000),
+    ]
+    for streamer in streamers:
+        for doc in streamer:
+            for sent in splitter(doc):
 #             parse = parser(sent)
 #             for unit in parse.split():
 #                 print unit
 #             raw_input()
-            tokenized = [w.lower() for w in tokenizer(sent)]
-            dump += tokenized
-            model.update(['#'] + tokenized + ['#'])
+                tokenized = [w.lower() for w in tokenizer(sent)]
+                dump += tokenized
+                model.update(['#'] + tokenized + ['#'])
     freq_dist = Counter(dump + targets)
 
 
@@ -119,11 +130,14 @@ for C in CONFIG:
         
         if candidate == correct:
             continue
+#         elif is_candidate and (category != 'Mec'):
+#             continue
 
         report.add()
 
-        if is_candidate and ((not correct or len(correct.split()) > 1) or 
-        category != 'Mec'):
+        if is_candidate and ((not correct or len(correct.split()) > 1)
+        or category not in ['Mec']):
+#         or category not in ['Mec', 'Nn', 'Wform']):
             report.fn(left, candidate, right, correct, category)
             continue
 
@@ -157,22 +171,19 @@ for C in CONFIG:
             score = abs(pleft - pright)
 #             corrections.append((score, sim))
             corrections.append((score * max([pleft, pright]), sim))
-#         print left
-#         print '... %s' % right
-#         print candidate, '/%s' % correct
-#         print sorted(corrections, reverse=True)
         baseline = [sim for sim, w in corrections if w == candidate][0]
 
-        print [(freq_dist[w] / freq_dist[candidate], w) for sim, w in corrections[:1]
-                   if freq_dist[w] / freq_dist[candidate] >= 2]
-        print [w for sim, w in corrections[:1]
-                   if (baseline and sim / baseline >= 2)
-                   or not baseline]
-        print
+#         print [(freq_dist[w] / freq_dist[candidate], w) for sim, w in corrections[:1]
+#                    if freq_dist[w] / freq_dist[candidate] >= 2]
+#         print [w for sim, w in corrections[:1]
+#                    if (baseline and sim / baseline >= 2)
+#                    or not baseline]
+#         print
+
         if baseline:
             top = [w for sim, w in corrections[:1]
                    if w != candidate and
-                   freq_dist[w] / freq_dist[candidate] >= 100]
+                   freq_dist[w] / freq_dist[candidate] >= 300]
 #             print [(w, sim / baseline) for sim, w in corrections[:1]
 #                    if w != candidate and
 #                    freq_dist[w] / freq_dist[candidate] >= 10 and
