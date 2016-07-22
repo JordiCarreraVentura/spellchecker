@@ -50,6 +50,15 @@ CONFIG = [
 	{
     	'nb_sent': 50000,
 #     	'chgram': 2,
+    	'sim_thres': 0.9,
+   		'freq_ratio': 50,
+    	'min_Count': 10,
+    	'top_n': 50
+	},
+
+	{
+    	'nb_sent': 50000,
+#     	'chgram': 2,
     	'sim_thres': 0.85,
    		'freq_ratio': 10,
     	'min_Count': 10,

@@ -114,9 +114,9 @@ dump = []
 #     for doc in TextStreamer(corpus, nb_sent=C['nb_sent']):
 streamers = [
     TextStreamer(corpus1, nb_sent=200000),
-#         TextStreamer(corpus2, nb_sent=200000),
-#         TextStreamer(corpus3, nb_sent=200000),
-#         TextStreamer(corpus4, nb_sent=200000),
+    TextStreamer(corpus2, nb_sent=200000),
+    TextStreamer(corpus3, nb_sent=200000),
+    TextStreamer(corpus4, nb_sent=200000),
 ]
 for streamer in streamers:
     for doc in streamer:
