@@ -45,14 +45,15 @@ def get_name(template):
             return name
         i += 1
 
-PoS_l = ['CC', 'CD', 'DT', 'EX', 'FW', 'IN', 'JJ', 'JJR', 'JJS', 'LS', 'MD', 'NN', 'NNS', 'NNP', 'NNPS', 'PDT',
-         'POS', 'PRP', 'PRP$', 'RB', 'RBR', 'RBS', 'RP',
-         'SYM', 'TO', 'UH', 'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ', 'WDT', 'WP', 'WP$', 'WRB']
-PoS = {}
-i = 1
-for k in PoS_l:
-	PoS[k] = i
-	i += 1
+
+# PoS_l = ['CC', 'CD', 'DT', 'EX', 'FW', 'IN', 'JJ', 'JJR', 'JJS', 'LS', 'MD', 'NN', 'NNS', 'NNP', 'NNPS', 'PDT',
+#          'POS', 'PRP', 'PRP$', 'RB', 'RBR', 'RBS', 'RP',
+#          'SYM', 'TO', 'UH', 'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ', 'WDT', 'WP', 'WP$', 'WRB']
+# PoS = {}
+# i = 1
+# for k in PoS_l:
+# 	PoS[k] = i
+# 	i += 1
 
 
 WORD_GRAMS = [
@@ -101,18 +102,14 @@ for C in CONFIG:
     dump = []
 #     for doc in TextStreamer(corpus, nb_sent=C['nb_sent']):
     streamers = [
-        TextStreamer(corpus1, nb_sent=200000),
-#         TextStreamer(corpus2, nb_sent=200000),
-#         TextStreamer(corpus3, nb_sent=200000),
-#         TextStreamer(corpus4, nb_sent=200000),
+        TextStreamer(corpus1, nb_sent=C['nb_sent']),
+        TextStreamer(corpus2, nb_sent=C['nb_sent']),
+        TextStreamer(corpus3, nb_sent=C['nb_sent']),
+        TextStreamer(corpus4, nb_sent=C['nb_sent']),
     ]
     for streamer in streamers:
         for doc in streamer:
             for sent in splitter(doc):
-#             parse = parser(sent)
-#             for unit in parse.split():
-#                 print unit
-#             raw_input()
                 tokenized = [w.lower() for w in tokenizer(sent)]
                 dump += tokenized
                 model.update(['#'] + tokenized + ['#'])
@@ -122,7 +119,7 @@ for C in CONFIG:
     #	Map all character n-grams to words, and all words to their
     #	character n-grams
 #     index = CharacterIndex(dump + targets, top_n=C['top_n'], min_r=C['sim_thres'])
-    index = CharacterIndex(dump + targets, top_n=C['top_n'], min_r=0.9)
+    index = CharacterIndex(dump + targets, top_n=C['top_n'], min_r=C['sim_thres'])
     index.build()
 
     tests = [t for t in tests]
@@ -136,15 +133,19 @@ for C in CONFIG:
         report.add()
 
         if is_candidate and ((not correct or len(correct.split()) > 1)
-        or category not in ['Mec']):
-#         or category not in ['Mec', 'Nn', 'Wform']):
+#         or category not in ['Mec']):
+        or category not in ['Mec', 'Nn', 'Wform']):
             report.fn(left, candidate, right, correct, category)
             continue
 
 #         similars = index(candidate, n=5)
+
         similars = [(w, sim) for w, sim in index(candidate)
-                    if freq_dist[w] >= 10 and
-                    freq_dist[w] / freq_dist[candidate] >= 100]
+                    if freq_dist[w] >= C['min_Count'] and
+                    freq_dist[w] / freq_dist[candidate] >= C['freq_ratio']]
+#         similars = [(w, sim) for w, sim in index(candidate)
+#                     if freq_dist[w] >= 50 and
+#                     freq_dist[w] / freq_dist[candidate] >= 200]
 
         if not similars and not is_candidate:
             report.tn(left, candidate, right, correct, category)
@@ -169,25 +170,13 @@ for C in CONFIG:
             pleft = model(left)
             pright = model(right)
             score = abs(pleft - pright)
-#             corrections.append((score, sim))
             corrections.append((score * max([pleft, pright]), sim))
         baseline = [sim for sim, w in corrections if w == candidate][0]
 
-#         print [(freq_dist[w] / freq_dist[candidate], w) for sim, w in corrections[:1]
-#                    if freq_dist[w] / freq_dist[candidate] >= 2]
-#         print [w for sim, w in corrections[:1]
-#                    if (baseline and sim / baseline >= 2)
-#                    or not baseline]
-#         print
-
         if baseline:
-            top = [w for sim, w in corrections[:1]
+            top = [w for sim, w in sorted(corrections, reverse=True)[:1]
                    if w != candidate and
-                   freq_dist[w] / freq_dist[candidate] >= 300]
-#             print [(w, sim / baseline) for sim, w in corrections[:1]
-#                    if w != candidate and
-#                    freq_dist[w] / freq_dist[candidate] >= 10 and
-#                    sim / baseline >= 1000]
+                   freq_dist[w] / freq_dist[candidate] >= 100]
         else:
             top = [w for sim, w in corrections[:1]]
 
@@ -201,8 +190,6 @@ for C in CONFIG:
             report.fp(left, candidate, right, correct, category)
     
     report.lap(C)
-    break
-
 
 template = 'logs/test-%s-%d'
 report(get_name(template))
