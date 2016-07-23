@@ -1,0 +1,21 @@
+Good morning guys!
+
+Final results and some related comments:
+
+1) Results log using my implementation (no PoS-information but *now correctly using* :) gram information)
+https://www.dropbox.com/s/o4zetxwkrjem0n4/test-0.34.40-1.log.csv?dl=0
+
+2) Results log using your implementation with PoS-tagging
+https://www.dropbox.com/s/fx20l6v66a3pw64/test-0.6.14-1.log.csv?dl=0
+
+I don't think the difference is due to the PoS-information, I made some improvements in the n-gram model and that should account for it. So, feel free to use the results in the first log if you want.
+
+For context, here's again the paper with the CONLL results we use as a benchmark:
+http://www.comp.nus.edu.sg/~nlp/conll14st/CoNLLST01.pdf
+(you have it on Slack as well, one of the first links I shared on our channel)
+
+3) Regarding the recall for the category we're finally focusing on (Mec), our recall was 39%, so 2nd best according to the table on page 10 of the PDF linked above.
+
+4) More information on the corpus we're using, in case you want to give details in the input slide:
+http://ebiquity.umbc.edu/blogger/2013/05/01/umbc-webbase-corpus-of-3b-english-words/
+(we're only using ~3% of it, that's the amount I ran last night's experiments on, with a total of nearly 800,000 paragraphs or around 2 million words)
